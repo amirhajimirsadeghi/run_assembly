@@ -225,7 +225,6 @@ def run_assembly(lines):
 			print M
 			print "R: ",
 			print R
-			continue
 		else:
 			print "unrecognized command" + y[0] + " on line " + str(i)
 			return;
