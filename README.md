@@ -4,11 +4,14 @@ Usage:
 
 File format:
 
-	- format registers $acc, $r1-$r7
+	- format registers as: $acc, $r1-$r7
 	- remove all comments that exist on their own line
 	- have all jumps be literal
 	- pass all immediates as integers
 
+Debugging:
+
+	- use assembly instruction `print` anywhere in your code to see the current state of your Registers and memory
 Assumptions:
 
 	- sub works as: acc = acc - reg
