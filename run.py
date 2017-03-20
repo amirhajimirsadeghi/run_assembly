@@ -76,8 +76,9 @@ def run_assembly(lines):
 	i = 0
 	while i < len(lines):
 		y = lines[i].split()
-		if y[0] != "print":
-			print str(y[0]) + "\t" + str(y[1])
+		print i,
+		print ": ",
+		print y
 
 		if y[0].lower() == "add":
 			reg = R[register[y[1].lower()]]
@@ -240,8 +241,10 @@ def run_assembly(lines):
 	print R
 
 if __name__ == "__main__":
-	R[3] = [0,0,0,0,1,1,1,1]
-	R[1] = [0,0,0,1,1,1,1,1]
+	'''
+		MANIPULATE MEMORY HERE BEFORE EXECUTING
+		YOUR ASSEMBLY
+	'''
 	#open file
 	if(len(sys.argv) >= 2):
 		lines = []

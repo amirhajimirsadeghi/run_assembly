@@ -1,0 +1,247 @@
+setl	10
+ator	$r7
+setl	0
+St 		$r7		//M[10] = 0 -- will use to determine stage
+ator	$r7		//$r7 = 0 will use to determine if product is neg or pos
+setl	1
+ator	$r1
+ld		$r1
+ator	$r1		//$r1 = M[1] = X_HI
+setl	2
+ator	$r2
+ld		$r2
+ator	$r2		//$r2 = M[2] = X_LO
+setl	3
+ator	$r3
+ld		$r3
+ator	$r3		//$r3 = M[3] = Y_HI
+setl	4
+ator	$r4
+ld		$r4
+ator	$r4		//$r4 = M[4] = Y_LO
+setl 	15		
+seth 	15		
+ator	$r5		//$r5 = -1 (1111 1111) - used for xor and comparison
+setl 	0
+seth 	8
+sgt 	$r1
+bs		19		//If [($acc = 1000 0000) > $r1] branch to <XPOS>
+rtoa	$r5
+xor		$r2
+inc		$acc
+ator	$r2		//X_LO = (X_LO ^ 1111 1111)+1
+rtoa	$r5
+xor		$r1
+aof		$acc
+ator	$r1		//X_HI = (X_HI ^ 1111 1111) + OF
+setl	2
+ator	$r6
+rtoa	$r2
+st 		$r6		//M[2] = abs(X_LO)
+setl	1
+ator	$r6
+rtoa	$r1
+st 		$r6		//M[1] = abs(X_HI)
+setl	1
+ator	$r7		//setting $r7 to 1 b/c X is neg
+setl 	0		//<XPOS> - at this point X is positive--//
+seth 	8		
+sgt		$r3
+bs		20		//If [($acc = 1000 0000) > $r3] branch to <YPOS>
+rtoa	$r5
+xor		$r4
+inc		$acc
+ator	$r4		//Y_LO = (Y_LO ^ 1111 1111)+1
+rtoa	$r5
+xor		$r3
+aof		$acc
+ator	$r3		//Y_HI = (Y_HI ^ 1111 1111) + OF
+setl	4
+ator	$r6
+rtoa	$r4
+st 		$r6		//M[4] = abs(Y_LO)
+setl	3
+ator	$r6
+rtoa	$r3
+st 		$r6		//M[3] = abs(Y_HI)
+setl	1
+xor		$r7		
+ator	$r7		//will tell us if product pos or neg
+setl	9		//<YPOS> -- at this point Y is positive --//
+ator	$r6
+rtoa	$r7
+St 		$r6		//M[9] = $r7 -  will hold info on if product pos or neg
+clr 	$r1
+clr 	$r2
+clr 	$r3
+clr 	$r4
+clr 	$r5
+clr 	$r6
+clr 	$r7 	//FINISHED PRE PROCESSING - Begining PRE0
+setl	2		//<PRE0> -- (X_LO,Y_LO)
+ator	$r1
+ld		$r1
+ator	$r1
+setl	4
+ator	$r3
+ld		$r3
+ator	$r3		//$r3 = Y_LO, $r1 = X_LO
+seq		$acc
+bs		9		//branch to <MULT_B>
+setl	2		//<PRE1> -- (X_LO,Y_HI)
+ator	$r1
+ld		$r1
+ator	$r1
+setl	3
+ator	$r3
+ld		$r3
+ator	$r3		//$r3 = Y_HI, $r1 = X_LO
+seq		$acc
+bs		9		//branch to <MULT_B>
+setl	1		//<PRE2> -- (X_HI,Y_LO)
+ator	$r1
+ld		$r1
+ator	$r1
+setl	4
+ator	$r3
+ld		$r3
+ator	$r3		//$r3 = Y_LO, $r1 = X_HI
+seq		$acc
+bs		9		//branch to <MULT_B>
+setl	1		//<PRE3> -- (X_HI,Y_HI)
+ator	$r1
+ld		$r1
+ator	$r1
+setl	3
+ator	$r3
+ld		$r3
+ator	$r3		//$r3 = Y_HI, $r1 = X_HI
+seq		$acc
+bs		21		//branch to <MULT_B>
+clr 	$r6		//<SETUP> -- hit coming from the top
+clr 	$r7
+clr 	$r1		//<SETUP2> -- hit coming from the bottom
+clr 	$r2
+clr 	$r3
+clr 	$r4
+clr 	$r5		//clear everything
+setl	10		
+ator	$r1
+ld		$r1
+ator	$r1		//$r1 = M[10] -- used to determine stage
+setl	1
+seq		$r1
+bs		-43		// IF M[10] == 1 branch to <PRE1>
+inc		$acc
+seq		$r1
+bs		-36		// IF M[10] == 2 branch to <PRE2>
+inc		$acc
+seq		$r1
+bs		-29		// IF M[10] == 3 branch to <PRE3>
+se 		$r3		//<MULT_B> -- this is where multiplying happens
+bs		8		//jump to <SHIFT>
+rtoa 	$r4    	
+add 	$r1   	
+ator 	$r4    	//$r4 = $r4 + $r1 b/c LSB of Y is 1
+aof		$r5
+rtoa 	$r5
+add		$r2
+ator	$r5		//$r5 = $r5 + $r2 + $OF
+rtoa 	$r1    	//<SHIFT> -- shifts X left 1 bit
+add		$r1		
+ator 	$r1   	//$r1 = $r1 + $r1 AKA SL with OVERFLOW
+sl		$r2   		
+aof		$r2		// shift X_OF left by 1, shifting in $OF
+sr 		$r3 	// shifts Y($r3) right by 1
+setl 	0
+seq		$r3
+bns 	-17		// if B not 0 ($r3 != 0) then jmp backwards to MULT_B
+setl	10
+ator	$r1
+ld 		$r1
+ator	$r1		//$r1 = M[10]
+setl	0
+slt		$r1
+bs 		13		//jump to <POST1>
+setl	8		//<POST0> -- flow for first POST
+ator	$r1
+rtoa	$r4
+St 		$r1		//M[8] = $r4
+rtoa	$r5
+ator	$r6		//$r6 = $r5
+setl	10
+ator	$r1
+setl	1
+st 		$r1		//M[10] = 1
+
+seq		$acc
+bs 		-54 	// always branches to <SETUP2>
+inc 	$acc	//<POST1> -- branch
+slt 	$r1
+bs 		18
+rtoa	$r4
+add		$r6
+ator	$r6		//$r6 = $r4 + $r6
+clr 	$r7
+aof 	$r7		// $r7 = $OF
+setl	7
+ator	$r1
+rtoa	$r6
+st 		$r1		//M[7] = $r6
+rtoa	$r5
+ator	$r6		//$r6 = $r5
+setl	10
+ator	$r1
+setl	2
+st 		$r1		//M[10] = 2
+seq		$acc
+bs 		-21 	// always branches to <SETUP2>
+inc 	$acc	//<POST2> -- branch
+slt 	$r1
+bs 		24		//branch to POST3
+setl	7
+ator	$r1
+ld		$r1		
+add		$r4		//$acc = M[7] + $r4
+aof		$r7		//$r7 += $OF
+st 		$r1		//M[7] = M[7] + $r4
+rtoa	$r5
+add		$r7
+clr 	$r7
+aof		$r7
+add		$r6		//$acc = $r5 + $r7 + $r6
+aof		$r7
+ator	$r5
+setl	6
+ator	$r1
+rtoa	$r5
+st 		$r1		//M[6] = $r5 + $r7 + $r6
+setl	10
+ator	$r1
+setl	3
+st 		$r1		//M[10] = 3
+seq		$acc
+bs 		-27		// always branches to <SETUP2>
+setl	6		//<POST3> -- wrapping up last stage
+ator	$r1
+ld		$r1
+add		$r4	
+aof		$r7
+ator	$r4		//$r4 = M[6] + $r4
+setl	6
+ator	$r1
+rtoa	$r4
+st 		$r1		//M[6] = $r4
+rtoa	$r5
+add		$r7
+ator	$r5		//$r5 = $r5 + $r7
+setl 	5
+ator	$r1
+rtoa	$r5
+st 		$r1		//M[5] = $r5 + $r7
+clr 	$r1
+clr 	$r2
+clr 	$r3
+clr 	$r4
+clr 	$r5
+clr 	$r6
