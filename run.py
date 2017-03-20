@@ -76,13 +76,15 @@ def run_assembly(lines):
 	i = 0
 	while i < len(lines):
 		y = lines[i].split()
-		print str(y[0]) + "\t" + str(y[1])
+		if y[0] != "print":
+			print str(y[0]) + "\t" + str(y[1])
+
 		if y[0].lower() == "add":
 			reg = R[register[y[1].lower()]]
 			value = bin_to_int(R[0]) + bin_to_int(reg)
 			if value > 255:
 				OVERFLOW = 1
-				value = 255
+				value = value-256
 			R[0] = int_to_bin(value)
 
 		elif y[0].lower() == "sub":
@@ -95,7 +97,7 @@ def run_assembly(lines):
 			value = bin_to_int(reg)+1
 			if value > 255:
 				OVERFLOW = 1
-				value = 255
+				value = 0
 			R[register[y[1].lower()]] = int_to_bin(value)
 
 		elif y[0].lower() == "aof":
@@ -172,7 +174,7 @@ def run_assembly(lines):
 
 		elif y[0].lower() == "se":
 			reg = R[register[y[1].lower()]]
-			if reg[0] == 0:
+			if reg[7] == 0:
 				BRANCH_SET = 1
 
 		elif y[0].lower() == "xor":
@@ -211,12 +213,14 @@ def run_assembly(lines):
 			if BRANCH_SET == 1:
 				i = i + value
 				BRANCH_SET = 0
+				print ""
 				continue
 
 		elif y[0].lower() == "bns":
 			value = int(y[1])
 			if BRANCH_SET == 0:
 				i = i + value
+				print ""
 				continue
 			BRANCH_SET = 0
 
@@ -225,6 +229,7 @@ def run_assembly(lines):
 			print M
 			print "R: ",
 			print R
+		
 		else:
 			print "unrecognized command" + y[0] + " on line " + str(i)
 			return;
@@ -235,10 +240,8 @@ def run_assembly(lines):
 	print R
 
 if __name__ == "__main__":
-	M[1] = [1,1,0,1,1,0,1,1]	#-9354
-	M[2] = [0,1,1,1,0,1,1,0]
-	M[3] = [0,0,0,0,0,0,0,0]	#0
-	M[4] = [0,0,0,0,0,0,0,0]
+	R[3] = [0,0,0,0,1,1,1,1]
+	R[1] = [0,0,0,1,1,1,1,1]
 	#open file
 	if(len(sys.argv) >= 2):
 		lines = []
@@ -261,3 +264,5 @@ if __name__ == "__main__":
 				break;
 	else:
 		print "please specify filename when executing"
+	print R[5],
+	print R[4]
