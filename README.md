@@ -11,7 +11,9 @@ File format:
 
 Debugging:
 
-	- use assembly instruction `print` anywhere in your code to see the current state of your Registers and memory
+	- Use if statements in the begining of run_assembly function to:
+		- match against line numbers using i
+		- match against specifc instructions using y[0] == "X"
 Assumptions:
 
 	- sub works as: acc = acc - reg
